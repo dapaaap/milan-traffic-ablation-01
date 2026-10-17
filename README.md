@@ -8,9 +8,9 @@ Tugas Workshop Deep Learning — Teknik Telekomunikasi ITERA.
 
 | Peran | Nama | NIM |
 |---|---|---|
-| Ketua | [Nama Lengkap] | [NIM] |
-| Anggota | [Nama Lengkap] | [NIM] |
-| Anggota | [Nama Lengkap] | [NIM] |
+| Ketua | Adif Dafa Raihan | 124400055 |
+| Anggota | Cindy Auliya | 124400045 |
+| Anggota | Bima Cahya Ramadhan | 124400001 |
 
 - **Kelas:** [RA / RB]
 - **Lokasi kelompok:** [kode] — [nama lokasi] (digit terakhir NIM terkecil)
