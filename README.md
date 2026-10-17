@@ -12,8 +12,8 @@ Tugas Workshop Deep Learning — Teknik Telekomunikasi ITERA.
 | Anggota | Cindy Auliya | 124400045 |
 | Anggota | Bima Cahya Ramadhan | 124400001 |
 
-- **Kelas:** [RA / RB]
-- **Lokasi kelompok:** [kode] — [nama lokasi] (digit terakhir NIM terkecil)
+- **Kelas:** RA
+- **Lokasi kelompok:** 1 — Navigli (Darsena) (digit terakhir NIM terkecil: 1)
 - **Laporan:** [`laporan-latex/main.pdf` atau `laporan-typst/main.pdf`]
 
 ## Cara Menjalankan
