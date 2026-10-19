@@ -53,4 +53,58 @@ Kedua faktor ini dipilih sebelum eksekusi pelatihan dijalankan untuk menguji dua
 
 ---
 
-*Catatan: Dokumen ini disusun dan di-commit ke repositori Git sebelum kode pelatihan Bagian B dijalankan sebagai bukti urutan penetapan hipotesis a priori.*
+## 3. Evaluasi & Temuan Hasil Eksperimen terhadap Hipotesis
+
+Setelah eksperimen dijalankan secara penuh (4 model × 3 seed, `CEPAT = False`), berikut adalah perbandingan antara hasil empiris dengan hipotesis awal:
+
+### 3.1 Evaluasi Faktor B2 (`dropout`)
+
+| Model | Dropout | Epoch | Val MAE (mean ± std) | Test MAE (mean ± std) | Natal MAE (mean ± std) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **ANN** | 0.0 *(acuan)* | 106.3 | **248.9 ± 8.9** | **309.9 ± 5.9** | 680.1 ± 52.0 |
+| | 0.2 | 120.7 | 274.6 ± 31.6 | 330.3 ± 46.9 | **626.3 ± 18.3** |
+| | 0.5 | 126.3 | 377.7 ± 13.1 | 411.6 ± 8.0 | 677.4 ± 47.9 |
+| **RNN** | 0.0 *(acuan)* | 163.7 | **206.1 ± 7.4** | **229.6 ± 5.1** | **421.2 ± 2.4** |
+| | 0.2 | 178.3 | 239.5 ± 10.7 | 260.3 ± 13.1 | 458.5 ± 30.1 |
+| | 0.5 | 167.3 | 254.8 ± 11.1 | 260.2 ± 6.4 | 438.7 ± 6.7 |
+| **LSTM** | 0.0 *(acuan)* | 168.7 | **230.5 ± 12.2** | 273.6 ± 25.4 | **586.0 ± 56.8** |
+| | 0.2 | 228.3 | 231.8 ± 9.3 | **264.6 ± 16.6** | 596.0 ± 39.4 |
+| | 0.5 | 247.0 | 247.4 ± 6.5 | 289.1 ± 10.3 | 612.8 ± 28.6 |
+| **GRU** | 0.0 *(acuan)* | 193.7 | 207.5 ± 3.8 | 237.2 ± 9.3 | 468.2 ± 21.8 |
+| | 0.2 | 246.3 | **203.9 ± 5.1** | **225.0 ± 12.8** | **429.7 ± 1.6** |
+| | 0.5 | 215.3 | 259.5 ± 29.0 | 273.6 ± 20.5 | 472.4 ± 41.8 |
+
+- **Status Hipotesis:** **Sebagian Benar (Terkonfirmasi pada GRU & LSTM, Tidak Terbukti pada ANN & Simple RNN).**
+- **Mengapa:**
+  - **Gated Recurrent (GRU & LSTM):** Regularisasi moderat ($p = 0.2$) terbukti berhasil. Pada GRU, Val MAE membaik ($207.5 \rightarrow 203.9$), Test MAE membaik ($237.2 \rightarrow 225.0$), dan Natal MAE membaik ($468.2 \rightarrow 429.7$). Pada LSTM, Test MAE membaik ($273.6 \rightarrow 264.6$) dengan variansi antar seed yang lebih konsisten ($\pm 16.6$ vs $\pm 25.4$). Arsitektur dengan gerbang memiliki kapasitas representasi internal yang cukup tinggi sehingga pemutusan neuron stochastik mampu mencegah *memorization of training noise*.
+  - **ANN & Simple RNN:** Regularisasi $p = 0.2$ justru meningkatkan error. Hal ini disebabkan kapasitas dasar ANN (32 hidden unit) dan Simple RNN tidak berlebihan, dan Simple RNN sangat rentan terhadap *vanishing gradient*. Pemutusan koneksi 20% secara acak memperparah instabilitas aliran gradien temporal.
+  - **Dropout Agresif ($p = 0.5$):** Benar secara universal. Seluruh model mengalami lonjakan error signifikan (*underfitting*) karena kapasitas representasi model terpangkas hingga 50%.
+
+---
+
+### 3.2 Evaluasi Faktor B6 (`horizon`)
+
+| Model | Horizon (jam) | Epoch | Val MAE (mean ± std) | Test MAE (mean ± std) | Natal MAE (mean ± std) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **ANN** | 1 *(acuan)* | 106.3 | **248.9 ± 8.9** | **309.9 ± 5.9** | **680.1 ± 52.0** |
+| | 6 | 120.7 | 337.2 ± 2.4 | 395.7 ± 9.1 | 901.7 ± 23.7 |
+| | 24 | 154.3 | 449.0 ± 7.6 | 526.8 ± 16.1 | 1199.4 ± 30.9 |
+| **RNN** | 1 *(acuan)* | 163.7 | **206.1 ± 7.4** | **229.6 ± 5.1** | **421.2 ± 2.4** |
+| | 6 | 119.3 | 416.6 ± 11.4 | 427.6 ± 12.2 | 953.2 ± 43.2 |
+| | 24 | 208.7 | 437.2 ± 3.2 | **486.4 ± 8.1** | **1101.6 ± 17.6** |
+| **LSTM** | 1 *(acuan)* | 168.7 | **230.5 ± 12.2** | **273.6 ± 25.4** | **586.0 ± 56.8** |
+| | 6 | 210.0 | 392.9 ± 24.5 | 408.3 ± 28.6 | 942.3 ± 40.9 |
+| | 24 | 199.7 | 456.9 ± 19.8 | 496.1 ± 10.9 | 1150.5 ± 7.2 |
+| **GRU** | 1 *(acuan)* | 193.7 | **207.5 ± 3.8** | **237.2 ± 9.3** | **468.2 ± 21.8** |
+| | 6 | 204.7 | 381.1 ± 21.0 | 433.4 ± 26.4 | 962.4 ± 55.7 |
+| | 24 | 193.0 | 451.8 ± 11.6 | 503.3 ± 6.5 | 1108.1 ± 33.5 |
+
+*Pembanding Baseline Naif Duomo:*
+- $H=1$ Test MAE: Naif Minggu Lalu = **467.6**, Naif Kemarin = **552.2**, Naif Terakhir = **600.9**
+- $H=24$ Test MAE: Naif Minggu Lalu = **466.1**, Naif Kemarin = **563.4**, Naif Terakhir = **2769.3**
+
+- **Status Hipotesis:** **BENAR SEPENUHNYA (Sangat Sesuai Prediksi).**
+- **Mengapa:**
+  - **Monotonisitas Error:** Error MAE meningkat tajam dan konsisten ($H=1 \rightarrow H=6 \rightarrow H=24$) karena akumulasi ketidakpastian (*aleatoric uncertainty*) pada proyeksi multi-langkah ke depan.
+  - **Kalah dari Naif Musiman di $H=24$:** Pada $H=1$, semua model deep learning unggul jauh atas baseline naif. Namun pada $H=24$, performa seluruh model (Test MAE 486.4 – 526.8) **kalah oleh baseline naif "minggu lalu" (466.1)**. Hal ini membuktikan bahwa untuk rentang 1 hari penuh, siklus periodisitas mingguan alami deret waktu trafik seluler lebih deterministik daripada prediksi *direct multi-step* jaringan neural tanpa umpan balik autoregresif.
+  - **Model Rekuren vs ANN di $H=24$:** Model rekuren (RNN: 486.4, LSTM: 496.1, GRU: 503.3) terbukti mengungguli ANN (526.8), mengonfirmasi bahwa penanganan urutan sekuensial melalui *hidden state* lebih adaptif dibanding *flattening* linear statis pada output berdimensi besar.
