@@ -1,0 +1,14 @@
+\begin{table}[t]
+  \centering
+  \caption{Pengaruh Horizon Peramalan (jam) terhadap val MAE (rata-rata $\pm$ SD, 3 seed)}
+  \label{tab:tabel_B6_horizon}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Horizon Peramalan (jam) & ANN & RNN & LSTM & GRU \\
+    \midrule
+    1 & \mathbf{248.9 \pm 8.9} & \mathbf{206.1 \pm 7.4} & \mathbf{230.5 \pm 12.2} & \mathbf{207.5 \pm 3.8} \\
+    6 & $337.2 \pm 2.4$ & $416.6 \pm 11.4$ & $392.9 \pm 24.5$ & $381.1 \pm 21.0$ \\
+    24 & $449.0 \pm 7.6$ & $437.2 \pm 3.2$ & $456.9 \pm 19.8$ & $451.8 \pm 11.6$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

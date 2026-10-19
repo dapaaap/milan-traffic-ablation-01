@@ -1,0 +1,15 @@
+\begin{table}[t]
+  \centering
+  \caption{Pengaruh Kelompok Fitur terhadap val MAE (rata-rata $\pm$ SD, 3 seed)}
+  \label{tab:tabel_A5_fitur}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Kelompok Fitur & ANN & RNN & LSTM & GRU \\
+    \midrule
+    net & $260.5 \pm 7.0$ & $245.2 \pm 5.8$ & $266.2 \pm 5.7$ & $264.6 \pm 7.0$ \\
+    net+call+sms & $259.9 \pm 5.2$ & $224.1 \pm 2.3$ & $243.7 \pm 7.1$ & $231.8 \pm 12.6$ \\
+    net+waktu & \mathbf{246.0 \pm 9.8} & $223.0 \pm 9.5$ & $231.1 \pm 4.3$ & $213.2 \pm 18.2$ \\
+    semua & $248.9 \pm 8.9$ & \mathbf{206.1 \pm 7.4} & \mathbf{230.5 \pm 12.2} & \mathbf{207.5 \pm 3.8} \\
+    \bottomrule
+  \end{tabular}
+\end{table}

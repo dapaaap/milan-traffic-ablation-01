@@ -1,0 +1,15 @@
+\begin{table}[t]
+  \centering
+  \caption{Pengaruh Ukuran Hidden terhadap val MAE (rata-rata $\pm$ SD, 3 seed)}
+  \label{tab:tabel_A2_hidden}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Ukuran Hidden & ANN & RNN & LSTM & GRU \\
+    \midrule
+    16 & $257.6 \pm 28.0$ & $247.0 \pm 5.8$ & $244.3 \pm 18.3$ & $216.8 \pm 21.2$ \\
+    32 & $248.9 \pm 8.9$ & $218.7 \pm 6.6$ & $241.5 \pm 20.5$ & $210.2 \pm 0.8$ \\
+    64 & $238.4 \pm 16.5$ & \mathbf{207.2 \pm 12.8} & $218.1 \pm 1.9$ & $198.4 \pm 9.2$ \\
+    128 & \mathbf{233.8 \pm 1.9} & $207.7 \pm 7.2$ & \mathbf{207.1 \pm 8.4} & \mathbf{188.7 \pm 4.2} \\
+    \bottomrule
+  \end{tabular}
+\end{table}

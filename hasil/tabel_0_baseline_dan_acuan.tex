@@ -1,0 +1,19 @@
+\begin{table}[t]
+  \centering
+  \caption{Baseline Naif dan Konfigurasi Acuan di Duomo ($H=1$, rata-rata $\pm$ SD, 3 seed)}
+  \label{tab:baseline_acuan}
+  \begin{tabular}{@{}lccccc@{}}
+    \toprule
+    Metode / Model & Param & Val MAE & Test MAE & Test MAPE (\%) & Natal MAE \\
+    \midrule
+    Naif: nilai terakhir & 0 & $662.6$ & $600.9$ & $18.4$ & $431.2$ \\
+    Naif: kemarin & 0 & $595.3$ & $552.2$ & $23.8$ & $921.5$ \\
+    Naif: minggu lalu & 0 & $492.8$ & $467.6$ & $19.9$ & $1426.2$ \\
+    \midrule
+    \textbf{ANN} (Acuan) & 6,497 & $248.9 \pm 8.9$ & $309.9 \pm 5.9$ & $11.3 \pm 0.8$ & $680.1 \pm 52.0$ \\
+    \textbf{RNN} (Acuan) & 5,305 & $206.1 \pm 7.4$ & $229.6 \pm 5.1$ & $8.5 \pm 0.3$ & $421.2 \pm 2.4$ \\
+    \textbf{LSTM} (Acuan) & 5,578 & $230.5 \pm 12.2$ & $273.6 \pm 25.4$ & $9.1 \pm 1.0$ & $586.0 \pm 56.8$ \\
+    \textbf{GRU} (Acuan) & 5,397 & $207.5 \pm 3.8$ & $237.2 \pm 9.3$ & $8.0 \pm 0.7$ & $468.2 \pm 21.8$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

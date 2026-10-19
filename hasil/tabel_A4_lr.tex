@@ -1,0 +1,14 @@
+\begin{table}[t]
+  \centering
+  \caption{Pengaruh Learning Rate terhadap val MAE (rata-rata $\pm$ SD, 3 seed)}
+  \label{tab:tabel_A4_lr}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Learning Rate & ANN & RNN & LSTM & GRU \\
+    \midrule
+    0.0001 & $295.3 \pm 4.6$ & $285.0 \pm 13.7$ & $399.4 \pm 25.0$ & $398.4 \pm 8.6$ \\
+    0.001 & \mathbf{248.9 \pm 8.9} & \mathbf{206.1 \pm 7.4} & $230.5 \pm 12.2$ & \mathbf{207.5 \pm 3.8} \\
+    0.01 & $261.8 \pm 16.6$ & $226.7 \pm 6.7$ & \mathbf{215.9 \pm 14.2} & $208.2 \pm 5.6$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

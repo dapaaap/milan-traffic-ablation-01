@@ -1,0 +1,22 @@
+\begin{table}[t]
+  \centering
+  \caption{Uji Generalisasi di Navigli (Kotak 4555, Kode 1, 3 seed)}
+  \label{tab:generalisasi_navigli}
+  \begin{tabular}{@{}llccccc@{}}
+    \toprule
+    Model & Konfigurasi & Param & Val MAE & Test MAE & Test MAPE (\%) & Natal MAE \\
+    \midrule
+    \multirow{2}{*}{ANN} & Acuan & 6,497 & $166.6 \pm 5.3$ & $222.3 \pm 27.4$ & $8.9 \pm 1.1$ & $664.5 \pm 190.8$ \\
+     & \textbf{Terbaik} & 4,097 & $138.4 \pm 1.7$ & \mathbf{191.1 \pm 1.9} & $7.9 \pm 0.1$ & $607.7 \pm 56.1$ \\
+    \midrule
+    \multirow{2}{*}{RNN} & Acuan & 5,305 & $147.3 \pm 4.9$ & $193.0 \pm 9.7$ & $7.8 \pm 0.3$ & $534.7 \pm 148.9$ \\
+     & \textbf{Terbaik} & 5,305 & $148.7 \pm 7.7$ & $211.7 \pm 24.3$ & $8.7 \pm 1.0$ & $649.2 \pm 92.5$ \\
+    \midrule
+    \multirow{2}{*}{LSTM} & Acuan & 5,578 & $164.3 \pm 9.3$ & $247.3 \pm 54.3$ & $10.0 \pm 2.7$ & $950.8 \pm 110.9$ \\
+     & \textbf{Terbaik} & 70,273 & $147.2 \pm 4.2$ & \mathbf{210.4 \pm 7.7} & $8.5 \pm 0.5$ & $738.4 \pm 41.9$ \\
+    \midrule
+    \multirow{2}{*}{GRU} & Acuan & 5,397 & $149.0 \pm 6.0$ & $190.8 \pm 6.8$ & $7.8 \pm 0.2$ & $496.4 \pm 50.9$ \\
+     & \textbf{Terbaik} & 151,809 & $132.5 \pm 2.1$ & $223.1 \pm 17.0$ & $9.6 \pm 0.7$ & $753.7 \pm 49.8$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

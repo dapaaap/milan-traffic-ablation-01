@@ -1,0 +1,22 @@
+\begin{table}[t]
+  \centering
+  \caption{Perbandingan Konfigurasi Acuan vs Terbaik per Model di Duomo (3 seed)}
+  \label{tab:terbaik_duomo}
+  \begin{tabular}{@{}llccccc@{}}
+    \toprule
+    Model & Konfigurasi & Param & Val MAE & Test MAE & Test MAPE (\%) & Natal MAE \\
+    \midrule
+    \multirow{2}{*}{ANN} & Acuan & 6,497 & $248.9 \pm 8.9$ & $309.9 \pm 5.9$ & $11.3 \pm 0.8$ & $680.1 \pm 52.0$ \\
+     & \textbf{Terbaik} & 4,097 & $230.1 \pm 14.8$ & \mathbf{288.1 \pm 15.6} & $9.6 \pm 0.6$ & $617.7 \pm 36.0$ \\
+    \midrule
+    \multirow{2}{*}{RNN} & Acuan & 5,305 & $206.1 \pm 7.4$ & $229.6 \pm 5.1$ & $8.5 \pm 0.3$ & $421.2 \pm 2.4$ \\
+     & \textbf{Terbaik} & 5,305 & $200.1 \pm 5.3$ & \mathbf{224.5 \pm 11.7} & $8.2 \pm 0.8$ & $404.5 \pm 9.9$ \\
+    \midrule
+    \multirow{2}{*}{LSTM} & Acuan & 5,578 & $230.5 \pm 12.2$ & $273.6 \pm 25.4$ & $9.1 \pm 1.0$ & $586.0 \pm 56.8$ \\
+     & \textbf{Terbaik} & 70,273 & $221.3 \pm 6.9$ & \mathbf{225.3 \pm 4.0} & $7.3 \pm 0.7$ & $454.5 \pm 36.4$ \\
+    \midrule
+    \multirow{2}{*}{GRU} & Acuan & 5,397 & $207.5 \pm 3.8$ & $237.2 \pm 9.3$ & $8.0 \pm 0.7$ & $468.2 \pm 21.8$ \\
+     & \textbf{Terbaik} & 151,809 & $203.6 \pm 7.3$ & $239.7 \pm 9.9$ & $7.9 \pm 0.4$ & $497.6 \pm 16.8$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
