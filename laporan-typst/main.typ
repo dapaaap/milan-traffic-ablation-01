@@ -22,9 +22,9 @@
   ],
   // Satu entri per anggota (maks. 3). Hapus yang tidak dipakai.
   authors: (
-    (name: "Nama Anggota 1", department: [NIM 1221400xx], organization: [Teknik Telekomunikasi, ITERA], email: "email@student.itera.ac.id"),
-    (name: "Nama Anggota 2", department: [NIM 1221400xx], organization: [Teknik Telekomunikasi, ITERA], email: "email@student.itera.ac.id"),
-    (name: "Nama Anggota 3", department: [NIM 1221400xx], organization: [Teknik Telekomunikasi, ITERA], email: "email@student.itera.ac.id"),
+    (name: "Adif Dafa Raihan", department: [NIM 124400055], organization: [Teknik Telekomunikasi, ITERA], email: "adif.124400055@student.itera.ac.id"),
+    (name: "Cindy Auliya", department: [NIM 124400045], organization: [Teknik Telekomunikasi, ITERA], email: "cindy.124400045@student.itera.ac.id"),
+    (name: "Bima Cahya Ramadhan", department: [NIM 124400001], organization: [Teknik Telekomunikasi, ITERA], email: "bima.124400001@student.itera.ac.id"),
   ),
   index-terms: ("prediksi trafik seluler", "RNN", "LSTM", "GRU", "studi ablasi"),
   bibliography: bibliography("references.bib", title: [Pustaka]),
