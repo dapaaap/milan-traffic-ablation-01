@@ -108,25 +108,152 @@ prediksi trafik seluler, RNN, LSTM, GRU, studi ablasi
 \section{Hasil}
 
 \subsection{Baseline Naif dan Acuan}
-\petunjuk{Tabel baseline naif dan hasil konfigurasi acuan (Bagian 0).}
 
-\subsection{Ablasi Wajib}
-\petunjuk{Satu subbagian atau paragraf per faktor A1--A5. Gunakan grafik dari folder \texttt{hasil/} (boleh digabung beberapa dalam satu gambar agar hemat tempat) dan tabel seperti Tabel~\ref{tab:contoh}. Setiap gambar dan tabel harus dirujuk dan dibahas di teks.}
+Evaluasi diawali dengan membandingkan performa model \textit{deep learning} pada konfigurasi acuan terhadap tiga metode \textit{baseline} naif tanpa parameter di lokasi Duomo (kotak 5060) dengan horizon peramalan satu jam ( = 1$). Tiga \textit{baseline} naif yang diuji mencakup: (1) \textit{naif nilai terakhir} ($\hat{y}_t = y_{t-1}$), (2) \textit{naif kemarin} ($\hat{y}_t = y_{t-24}$), dan (3) \textit{naif minggu lalu} ($\hat{y}_t = y_{t-168}$). Hasil komparasi disajikan pada Tabel~\ref{tab:baseline_acuan}.
 
 \begin{table}[t]
   \centering
-  \caption{Contoh format: pengaruh panjang jendela $W$ terhadap test MAE (rata-rata $\pm$ simpangan baku, 3 seed). Angka di bawah hanya contoh.}
-  \label{tab:contoh}
+  \caption{Baseline Naif dan Konfigurasi Acuan di Duomo (=1$, rata-rata $\pm$ SD, 3 seed)}
+  \label{tab:baseline_acuan}
+  \begin{tabular}{@{}lccccc@{}}
+    \toprule
+    Metode / Model & Param & Val MAE & Test MAE & Test MAPE (\%) & Natal MAE \\
+    \midrule
+    Naif: nilai terakhir & 0 & .6$ & .9$ & .4$ & .2$ \\
+    Naif: kemarin & 0 & .3$ & .2$ & .8$ & .5$ \\
+    Naif: minggu lalu & 0 & .8$ & .6$ & .9$ & .2$ \\
+    \midrule
+    \textbf{ANN} (Acuan) & 6,497 & .9 \pm 8.9$ & .9 \pm 5.9$ & .3 \pm 0.8$ & .1 \pm 52.0$ \\
+    \textbf{RNN} (Acuan) & 5,305 & .1 \pm 7.4$ & .6 \pm 5.1$ & .5 \pm 0.3$ & .2 \pm 2.4$ \\
+    \textbf{LSTM} (Acuan) & 5,578 & .5 \pm 12.2$ & .6 \pm 25.4$ & .1 \pm 1.0$ & .0 \pm 56.8$ \\
+    \textbf{GRU} (Acuan) & 5,397 & .5 \pm 3.8$ & .2 \pm 9.3$ & .0 \pm 0.7$ & .2 \pm 21.8$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Pada minggu uji reguler (16--22 Desember 2013), metode naif minggu lalu menjadi acuan nirparameter terkuat dengan test MAE .6$, mengonfirmasi kuatnya musiman 7 hari di Duomo. Seluruh model \textit{deep learning} mengungguli \textit{baseline} naif secara signifikan: ANN menurunkan test MAE menjadi .9 \pm 5.9$ (turun 33,7\%), LSTM ke .6 \pm 25.4$ (turun 41,5\%), GRU ke .2 \pm 9.3$ (turun 49,3\%), dan Simple RNN mencatatkan kesalahan terendah .6 \pm 5.1$ (turun 50,9\%). Keunggulan model rekuren membuktikan pentingnya pengolahan temporal sekuensial dibanding perataan dimensi waktu pada ANN.
+
+Pada metrik MAPE, seluruh model memangkas kesalahan relatif ke kisaran 8,0\%--11,3\% (naif berkisar 18,4\%--23,8\%). GRU mencatat MAPE terbaik (.0 \pm 0.7\%$) yang menegaskan efektivitas gerbang \textit{reset} dan \textit{update} menjaga kestabilan proporsi kesalahan di seluruh rentang magnitudo beban.
+
+Pada minggu Natal (23--29 Desember 2013), anomali liburan menyebabkan lonjakan drastis pada \textit{baseline} musiman: naif minggu lalu melonjak tajam ke MAE .2$ (MAPE 96,8\%) akibat memproyeksikan hari kerja normal ke masa libur. Sebaliknya, naif nilai terakhir membaik ke .2$ karena dinamika trafik berada pada tingkat rendah yang datar. Di antara model teruji, Simple RNN memperlihatkan ketahanan generalisasi tertinggi dengan Natal MAE .2 \pm 2.4$, mengungguli seluruh model lainnya dan baseline naif. ANN mengalami degradasi paling berat (.1 \pm 52.0$) akibat bobot statis fitur kalender yang memaksakan keluaran hari kerja saat aktivitas perkantoran Duomo libur.
+
+\subsection{Ablasi Wajib}
+
+Pada bagian ini, dilakukan studi ablasi terkontrol menggunakan protokol \textit{one-factor-at-a-time} (OFAT). Setiap subbagian (A1 hingga A5) hanya memvariasikan tepat satu faktor hiperparameter secara terisolasi, sementara seluruh faktor lainnya dibekukan pada nilai konfigurasi acuan (Tabel~\ref{tab:acuan}). Seluruh eksperimen dijalankan secara independen dengan 3 \textit{random seed} (0, 1, 2) untuk memisahkan efek faktor arsitektural dari variasi stokastik inisialisasi bobot. Pemilihan konfigurasi terbaik didasarkan pada metrik \textit{validation} MAE guna mencegah kebocoran data uji.
+
+\subsubsection{Panjang Jendela Observasi ($W$)}
+Eksperimen A1 menguji pengaruh panjang konteks historis $W \in \{6, 12, 24, 48, 168\}$ jam. Hasil val MAE dirangkum pada Tabel~\ref{tab:tabel_A1_W} dan visualisasi pada Gambar~\ref{fig:ieee_col_A1_W}.
+
+\begin{table}[t]
+  \centering
+  \caption{Pengaruh panjang jendela $W$ terhadap val MAE (rata-rata $\pm$ SD, 3 seed)}
+  \label{tab:tabel_A1_W}
   \begin{tabular}{@{}lcccc@{}}
     \toprule
     $W$ (jam) & ANN & RNN & LSTM & GRU \\
     \midrule
-    6   & $000 \pm 00$ & $000 \pm 00$ & $000 \pm 00$ & $000 \pm 00$ \\
-    24  & $000 \pm 00$ & $\mathbf{000 \pm 00}$ & $000 \pm 00$ & $000 \pm 00$ \\
-    168 & $000 \pm 00$ & $000 \pm 00$ & $000 \pm 00$ & $000 \pm 00$ \\
+    6   & $\mathbf{211.5 \pm 6.2}$ & $215.5 \pm 4.1$ & $\mathbf{227.1 \pm 4.3}$ & $212.6 \pm 11.5$ \\
+    12  & $238.5 \pm 4.5$ & $206.7 \pm 6.2$ & $235.6 \pm 2.0$ & $208.9 \pm 10.4$ \\
+    24  & $248.9 \pm 8.9$ & $206.1 \pm 7.4$ & $230.5 \pm 12.2$ & $207.5 \pm 3.8$ \\
+    48  & $262.6 \pm 3.8$ & $\mathbf{200.1 \pm 5.3}$ & $249.1 \pm 21.8$ & $\mathbf{206.7 \pm 5.0}$ \\
+    168 & $298.2 \pm 18.2$ & $204.8 \pm 10.2$ & $241.4 \pm 8.1$ & $\mathbf{206.7 \pm 5.1}$ \\
     \bottomrule
   \end{tabular}
 \end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{ieee_col_A1_W.png}
+  \caption{Pengaruh panjang jendela $W$ terhadap val MAE di Duomo.}
+  \label{fig:ieee_col_A1_W}
+\end{figure}
+
+ANN memperlihatkan degradasi monotonik yang tajam seiring bertambahnya $W$ (val MAE melonjak dari $211.5$ pada $W=6$ ke $298.2$ pada $W=168$; test MAE dari $269.4$ ke $402.0$). Karena ANN meratakan matriks jendela observasi, penambahan $W$ melipatgandakan parameter (dari 2.465 ke 38.753), memicu \textit{curse of dimensionality} dan \textit{overfitting} pada sampel latih yang terbatas (672 sampel). Sebaliknya, model rekuren memiliki parameter konstan terhadap $W$. RNN dan GRU mencapai titik optimum pada jendela multi-hari $W=48$ jam (val MAE masing-masing $200.1 \pm 5.3$ dan $206.7 \pm 5.0$) dan tetap stabil pada $W=168$ jam, membuktikan keunggulan intrinsik mekanisme pemrosesan sekuensial. LSTM optimal pada $W=6$ ($227.1 \pm 4.3$), dan menunjukkan variansi lebih besar pada jendela panjang.
+
+\subsubsection{Ukuran Hidden}
+Eksperimen A2 mengevaluasi kapasitas representasi dengan memvariasikan dimensi hidden state $\in \{16, 32, 64, 128\}$ (Tabel~\ref{tab:tabel_A2_hidden} dan Gambar~\ref{fig:ieee_col_A2_hidden}).
+
+\begin{table}[t]
+  \centering
+  \caption{Pengaruh ukuran hidden terhadap val MAE (rata-rata $\pm$ SD, 3 seed)}
+  \label{tab:tabel_A2_hidden}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Hidden & ANN & RNN & LSTM & GRU \\
+    \midrule
+    16  & $257.6 \pm 28.0$ & $247.0 \pm 5.8$ & $244.3 \pm 18.3$ & $216.8 \pm 21.2$ \\
+    32  & $248.9 \pm 8.9$ & $218.7 \pm 6.6$ & $241.5 \pm 20.5$ & $210.2 \pm 0.8$ \\
+    64  & $238.4 \pm 16.5$ & $\mathbf{207.2 \pm 12.8}$ & $218.1 \pm 1.9$ & $198.4 \pm 9.2$ \\
+    128 & $\mathbf{233.8 \pm 1.9}$ & $207.7 \pm 7.2$ & $\mathbf{207.1 \pm 8.4}$ & $\mathbf{188.7 \pm 4.2}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{ieee_col_A2_hidden.png}
+  \caption{Pengaruh variasi ukuran hidden terhadap val MAE.}
+  \label{fig:ieee_col_A2_hidden}
+\end{figure}
+
+Kapasitas rendah ($16$ unit) memicu \textit{underfitting} di seluruh model. Jumlah parameter rekuren berskala kuadratik terhadap hidden ($O(h^2)$): pada 128 unit, parameter LSTM melonjak ke 70.273, GRU ke 52.737, ANN ke 38.273, dan RNN ke 17.665. Kapasitas besar 128 unit secara konsisten menurunkan val MAE (GRU mencapai $188.7 \pm 4.2$ dan LSTM $207.1 \pm 8.4$), namun pertumbuhan parameter yang eksponensial menghadirkan \textit{diminishing returns} dan risiko \textit{overfitting}.
+
+\subsubsection{Jumlah Lapisan}
+Eksperimen A3 menguji kedalaman arsitektur dengan memvariasikan jumlah lapisan $\in \{1, 2, 3\}$ (Tabel~\ref{tab:tabel_A3_layers} dan Gambar~\ref{fig:ieee_col_A3_layers}).
+
+\begin{table}[t]
+  \centering
+  \caption{Pengaruh jumlah lapisan terhadap val MAE (rata-rata $\pm$ SD, 3 seed)}
+  \label{tab:tabel_A3_layers}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Lapisan & ANN & RNN & LSTM & GRU \\
+    \midrule
+    1 & $\mathbf{240.9 \pm 7.5}$ & $\mathbf{206.1 \pm 7.4}$ & $\mathbf{230.5 \pm 12.2}$ & $207.5 \pm 3.8$ \\
+    2 & $248.9 \pm 8.9$ & $207.3 \pm 9.1$ & $254.8 \pm 14.5$ & $\mathbf{203.3 \pm 9.6}$ \\
+    3 & $244.9 \pm 5.4$ & $225.1 \pm 12.7$ & $338.9 \pm 16.9$ & $212.2 \pm 15.9$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{ieee_col_A3_layers.png}
+  \caption{Pengaruh variasi jumlah lapisan terhadap performa model.}
+  \label{fig:ieee_col_A3_layers}
+\end{figure}
+
+Penambahan kedalaman ANN menghasilkan performa stabil ($240.9$ hingga $248.9$). Pada Simple RNN dan GRU, arsitektur dangkal 1--2 lapisan merupakan titik optimal. Sebaliknya, pada LSTM terjadi \textit{kegagalan katastropik} saat diperdalam menjadi 3 lapisan: val MAE melonjak ekstrem dari $230.5$ (1 lapis) ke $338.9 \pm 16.9$ (3 lapis), dan test MAE anjlok ke $412.6$. Hal ini disebabkan oleh pelipatgandaan resistensi gradien (\textit{vanishing gradients}) saat melalui tiga lapis gerbang LSTM tanpa koneksi residual pada dataset berukuran kecil.
+
+\subsubsection{Laju Pembelajaran (\textit{Learning Rate})}
+Eksperimen A4 menguji $lr \in \{10^{-4}, 10^{-3}, 10^{-2}\}$ (Tabel~\ref{tab:tabel_A4_lr} dan Gambar~\ref{fig:ieee_col_A4_lr}).
+
+\begin{table}[t]
+  \centering
+  \caption{Pengaruh learning rate terhadap val MAE (rata-rata $\pm$ SD, 3 seed)}
+  \label{tab:tabel_A4_lr}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Learning Rate & ANN & RNN & LSTM & GRU \\
+    \midrule
+    $10^{-4}$ & $295.3 \pm 4.6$ & $285.0 \pm 13.7$ & $399.4 \pm 25.0$ & $398.4 \pm 8.6$ \\
+    $10^{-3}$ & $\mathbf{248.9 \pm 8.9}$ & $\mathbf{206.1 \pm 7.4}$ & $230.5 \pm 12.2$ & $\mathbf{207.5 \pm 3.8}$ \\
+    $10^{-2}$ & $261.8 \pm 16.6$ & $226.7 \pm 6.7$ & $\mathbf{215.9 \pm 14.2}$ & $208.2 \pm 5.6$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{ieee_col_A4_lr.png}
+  \caption{Pengaruh variasi learning rate terhadap performa model.}
+  \label{fig:ieee_col_A4_lr}
+\end{figure}
+
+Pada $lr=10^{-4}$, seluruh model menabrak batas 300 epoch tanpa memicu \textit{early stopping} (rata-rata epoch tepat 300.0) karena laju optimasi terlalu lambat, menyebabkan \textit{severe underfitting} (val MAE LSTM/GRU $\sim 399$). Laju $10^{-3}$ memberikan konvergensi stabil dan efisien bagi model sederhana (ANN, RNN, GRU). Sebaliknya, $10^{-2}$ mempercepat konvergensi (hanya 61--68 epoch) dan sangat menguntungkan arsitektur dengan gerbang non-linear (LSTM val MAE turun ke $\mathbf{215.9 \pm 14.2}$, test MAE $225.8$; GRU val MAE $208.2$, test MAE $215.7$), meskipun sedikit mendestabilisasi Simple RNN ($226.7$).
+
+\subsubsection{Kelompok Fitur}
+\petunjuk{Faktor A5: pengaruh net, net+call+sms, net+waktu, dan semua fitur.}
 
 \subsection{Ablasi Pilihan}
 \petunjuk{Dua faktor B pilihan kalian: hipotesis awal, hasil, dan apakah hipotesis terbukti.}
