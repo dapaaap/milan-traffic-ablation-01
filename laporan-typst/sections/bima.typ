@@ -22,6 +22,6 @@
 )
 
 #heading(numbering: none)[Pernyataan Penggunaan AI]
-#petunjuk[Sebutkan alat AI yang digunakan dan pemanfaatannya, atau nyatakan “Tidak ada”. Seluruh angka hasil harus berasal dari eksperimen kelompok.]
+Kami menggunakan bantuan asisten AI, antara lain OpenCode, untuk membantu penulisan kode eksperimen, analisis awal, dan penyuntingan bahasa laporan. Seluruh rancangan eksperimen, eksekusi pelatihan, dan angka yang dilaporkan berasal dari run kelompok sendiri yang tersimpan pada `hasil/ablasi.csv`; setiap keluaran AI kami periksa ulang terhadap data tersebut. AI tidak dipakai untuk menghasilkan atau mengubah angka hasil.
 
 // Daftar pustaka dengan judul “Referensi” dihasilkan oleh charged-ieee.

@@ -1,27 +1,41 @@
-#let petunjuk(isi) = text(fill: gray.darken(20%))[[#isi]]
-
 = Pendahuluan
-#petunjuk[Jelaskan kebutuhan peramalan trafik per sel, alasan membandingkan ANN dengan model sekuensial, dan tujuan studi ablasi. Akhiri dengan 2–3 kontribusi laporan. Rujuk RNN, LSTM @hochreiter1997lstm, dan GRU @cho2014gru.]
+
+Pertumbuhan trafik data seluler menuntut operator meramalkan permintaan tiap sel secara akurat untuk alokasi kapasitas, efisiensi energi, dan kualitas layanan. Peramalan yang terlalu rendah menyebabkan kongesti, sedangkan peramalan yang terlalu tinggi membuang kapasitas. Karena trafik mengikuti ritme harian, mingguan, dan karakter kawasan, model perlu menangkap dependensi temporal, bukan hanya hubungan antarfitur pada satu waktu.
+
+ANN meratakan jendela observasi sehingga urutan waktu hilang. Recurrent neural network (RNN) mempertahankan hidden state, tetapi rentan terhadap vanishing gradient. Long short-term memory (LSTM) menambahkan gerbang input, forget, dan output serta cell state @hochreiter1997lstm, sedangkan gated recurrent unit (GRU) menyederhanakannya menjadi gerbang reset dan update @cho2014gru. Keunggulan model sekuensial tidak otomatis karena bergantung pada panjang jendela, kapasitas hidden, kedalaman, learning rate, fitur, regularisasi, dan horizon. Studi ablasi yang mengubah satu faktor setiap kali memisahkan pengaruh faktor tersebut dari variasi antar-seed.
+
+Kontribusi laporan ini ada tiga. Pertama, ablasi terkontrol lima faktor utama (panjang jendela, ukuran hidden, jumlah lapisan, learning rate, kelompok fitur) dan dua faktor tambahan (dropout, horizon) pada empat model dengan tiga seed di Duomo. Kedua, pemilihan konfigurasi hanya dari val MAE, lalu evaluasi pada minggu test dan Natal bersama baseline naif. Ketiga, uji generalisasi konfigurasi acuan dan terbaik di Navigli (kotak 4555, kode 1).
 
 = Data dan Metode
 
 == Dataset
-#petunjuk[Jelaskan sumber dan periode data Telecom Italia @barlacchi2015milan serta versi agregasi per jam @zhang2021fedda. Sebutkan fitur yang digunakan, kotak Duomo (5060), dan lokasi kelompok: Navigli (Darsena), kotak 4555 (kode 1).]
+
+Data berasal dari Telecom Italia Big Data Challenge @barlacchi2015milan yang mencakup aktivitas jaringan di Kota Milan, Italia. Kami memakai versi agregasi per jam @zhang2021fedda untuk periode 4 November--29 Desember 2013, sehingga setiap lokasi memiliki 1.344 observasi atau 56 hari. Setiap catatan memuat tiga kanal trafik, yaitu internet (net), panggilan (call), dan SMS (sms). Fitur masukan berjumlah tujuh: net, call, sms, serta empat fitur waktu berupa sinus dan kosinus jam (jam_sin, jam_cos) dan hari (hari_sin, hari_cos). Fitur waktu merepresentasikan periodisitas sirkadian dan mingguan secara kontinu. Target peramalan adalah net satu jam ke depan.
+
+Lokasi utama penelitian adalah kotak Duomo 5060 yang mewakili pusat aktivitas kota. Sebagai uji generalisasi, kami memakai lokasi kelompok, yaitu Navigli (Darsena) pada kotak 4555 dengan kode lokasi 1. Sebaran kedua lokasi ditunjukkan pada @fig:peta.
 
 #figure(
   image("../gambar/peta_lokasi_tugas.png", width: 85%),
-  caption: [Rata-rata aktivitas internet per kotak di Milan. Lingkaran kuning menunjukkan lokasi tugas; lingkaran toska menunjukkan Duomo.],
+  caption: [Rata-rata aktivitas internet per kotak di Milan. Lingkaran kuning menunjukkan lokasi tugas (kode 0--9); lingkaran toska menunjukkan Duomo.],
   placement: top,
 ) <fig:peta>
 
 == Pembagian Data dan Praproses
-#petunjuk[Jelaskan pembagian temporal train, validasi, test, dan Natal; standardisasi tanpa kebocoran data; serta windowing. Terangkan mengapa deret waktu tidak diacak.]
+
+Pembagian data dilakukan secara kronologis: train 11 November--8 Desember 2013 (672 jam), validasi 9--15 Desember, test 16--22 Desember, dan periode Natal 23--29 Desember. Minggu pertama, 4--10 November, tidak dipakai sebagai sampel latih dan hanya menjadi konteks jendela bagi sampel awal. Pembagian ini memisahkan masa depan dari masa lalu sehingga tidak ada informasi test yang bocor ke pelatihan.
+
+Standardisasi z-score dihitung dari rata-rata dan simpangan baku data sebelum 9 Desember, yaitu data latih beserta minggu konteks. Statistik tersebut kemudian diterapkan pada validasi, test, dan Natal. Dengan cara ini, model tidak pernah melihat statistik periode evaluasi. Jendela masukan dibentuk dengan panjang $W = 24$ jam dan horizon $H = 1$ jam, sehingga terdapat 672 jendela latih. Sebuah jendela dimasukkan ke split tertentu berdasarkan waktu targetnya, bukan waktu awal jendela. Prediksi dikembalikan ke skala asli sebelum metrik dihitung.
+
+Data deret waktu tidak diacak pada tahap pembagian karena pengacakan akan mencampur masa lalu dan masa depan serta merusak urutan yang menjadi objek peramalan. Pengacakan hanya dilakukan pada urutan mini-batch selama pelatihan; setiap jendela tetap mempertahankan urutan internalnya.
 
 == Model dan Konfigurasi Acuan
-#petunjuk[Uraikan ANN, RNN, LSTM, dan GRU secara ringkas. Konfigurasi berikut adalah nilai acuan yang perlu diverifikasi terhadap eksperimen.]
+
+ANN meratakan jendela $W times 7$ menjadi vektor dan memetakannya melalui dua lapisan tersembunyi berukuran 32 dengan aktivasi ReLU. Model ini tidak memodelkan urutan secara eksplisit. RNN sederhana memproses jendela langkah demi langkah dengan hidden state berukuran 68 dan memakai state terakhir untuk prediksi. LSTM memakai hidden state 33 serta tiga gerbang dan cell state @hochreiter1997lstm, sedangkan GRU memakai hidden state 38 dengan dua gerbang @cho2014gru. Pada ketiga model rekuren, keluaran diambil dari hidden state langkah terakhir, lalu dilewatkan satu lapisan linear.
+
+Semua model dilatih dengan fungsi loss MSE dan optimizer Adam (learning rate $10^(-3)$), batch 64, serta early stopping pada val MSE dengan patience 30 dan maksimum 300 epoch. Bobot terbaik dipilih dari epoch dengan val MSE terendah. Pelatihan diimplementasikan dengan PyTorch @paszke2019pytorch. Konfigurasi acuan dirangkum pada @tab:acuan.
 
 #figure(
-  caption: [Konfigurasi acuan],
+  caption: [Konfigurasi acuan dan jumlah parameter],
   placement: top,
   table(
     columns: 2,
@@ -34,7 +48,8 @@
     [Horizon], [1 jam],
     [Ukuran hidden], [ANN 32, RNN 68, LSTM 33, GRU 38],
     [Jumlah lapisan], [ANN 2, rekuren 1],
-    [Fitur], [net, call, sms, jam, hari (7)],
+    [Fitur], [net, call, sms, jam (sin/cos), hari (sin/cos) --- 7 fitur],
+    [Jumlah parameter], [ANN 6.497, RNN 5.305, LSTM 5.578, GRU 5.397],
     [Optimizer, _learning rate_], [Adam, $10^(-3)$],
     [_Batch size_], [64],
     [_Early stopping_], [_patience_ 30, maks. 300 epoch],
@@ -43,4 +58,9 @@
 ) <tab:acuan>
 
 == Protokol Ablasi dan Evaluasi
-#petunjuk[Jelaskan bahwa satu faktor diubah setiap kali; daftar nilai faktor A1–A5 dan dua faktor B; tiga random seed per konfigurasi; metrik MAE, RMSE, dan MAPE pada skala asli; pemilihan model dengan validation MAE; serta perangkat dan waktu pelatihan.]
+
+Setiap eksperimen mengubah satu faktor dari konfigurasi acuan, sedangkan faktor lain dipertahankan. Faktor A1 menguji panjang jendela $W in {6, 12, 24, 48, 168}$ jam; A2 ukuran hidden ${16, 32, 64, 128}$; A3 jumlah lapisan ${1, 2, 3}$; A4 learning rate ${10^(-4), 10^(-3), 10^(-2)}$; dan A5 kelompok fitur {net, net+call+sms, net+waktu, semua}. Dua faktor tambahan adalah B2 dropout {0; 0,2; 0,5} dan B6 horizon {1, 6, 24} jam. Setiap konfigurasi dilatih dengan tiga random seed, yaitu 0, 1, dan 2, lalu dilaporkan sebagai rata-rata $plus.minus$ simpangan baku.
+
+Evaluasi memakai MAE, RMSE, dan MAPE pada skala asli. MAE menjadi metrik utama karena satuannya sama dengan aktivitas trafik, sedangkan MAPE memberi gambaran error relatif. Pemilihan konfigurasi terbaik hanya memakai val MAE; data test dan Natal tidak dipakai sampai evaluasi akhir. Konfigurasi terbaik tiap model kemudian digabungkan pada Bagian C dan diuji generalisasinya pada Bagian D.
+
+Seluruh pelatihan dijalankan pada CPU dengan PyTorch. Sebanyak 270 pelatihan unik (348 catatan run karena beberapa konfigurasi acuan dipakai ulang) memerlukan total waktu 92,6 menit.
