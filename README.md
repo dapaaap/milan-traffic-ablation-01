@@ -90,17 +90,25 @@ Eksperimen dapat direproduksi baik secara lokal menggunakan environment manager 
 
 ## Ringkasan Hasil
 
-*Catatan: Ringkasan angka dan temuan final akan diperbarui setelah seluruh iterasi eksperimen selesai dijalankan.*
+Seluruh eksperimen dijalankan dengan PyTorch 2.14.1 pada CPU. Terdapat 348 catatan run, yang berasal dari 270 pelatihan unik karena beberapa konfigurasi acuan dipakai ulang di bagian lain.
 
-- **Perangkat yang dipakai:** [Akan diisi setelah pelatihan, contoh: Laptop CPU Intel i5 / Google Colab T4 GPU]
-- **Total waktu pelatihan:** [x] menit
+- **Perangkat yang dipakai:** CPU (PyTorch 2.14.1+cpu)
+- **Total waktu pelatihan:** ±92,6 menit untuk 270 pelatihan unik (348 catatan run)
+
+Konfigurasi terbaik dipilih hanya berdasarkan val MAE, lalu diuji pada minggu test dan periode Natal di Duomo. Tabel berikut membandingkan konfigurasi acuan dan terbaik (rata-rata ± simpangan baku, 3 seed).
 
 | Model | Konfigurasi | Val MAE (mean ± std) | Test MAE (mean ± std) | Test MAPE (%) | Natal MAE |
 |---|---|---|---|---|---|
-| ANN | Acuan / Terbaik | - | - | - | - |
-| RNN | Acuan / Terbaik | - | - | - | - |
-| LSTM | Acuan / Terbaik | - | - | - | - |
-| GRU | Acuan / Terbaik | - | - | - | - |
+| ANN | Acuan | 248,9 ± 8,9 | 309,9 ± 5,9 | 11,3 ± 0,8 | 680,1 ± 52,0 |
+| ANN | **Terbaik** | 230,1 ± 14,8 | **288,1 ± 15,6** | 9,6 ± 0,6 | 617,7 ± 36,0 |
+| RNN | Acuan | 206,1 ± 7,4 | 229,6 ± 5,1 | 8,5 ± 0,3 | 421,2 ± 2,4 |
+| RNN | **Terbaik** | 200,1 ± 5,3 | **224,5 ± 11,7** | 8,2 ± 0,8 | 404,5 ± 9,9 |
+| LSTM | Acuan | 230,5 ± 12,2 | 273,6 ± 25,4 | 9,1 ± 1,0 | 586,0 ± 56,8 |
+| LSTM | **Terbaik** | 221,3 ± 6,9 | **225,3 ± 4,0** | 7,3 ± 0,7 | 454,5 ± 36,4 |
+| GRU | Acuan | 207,5 ± 3,8 | **237,2 ± 9,3** | 8,0 ± 0,7 | **468,2 ± 21,8** |
+| GRU | Terbaik | 203,6 ± 7,3 | 239,7 ± 9,9 | 7,9 ± 0,4 | 497,6 ± 16,8 |
+
+Test MAE terendah di Duomo dicapai oleh RNN terbaik (224,5 ± 11,7). Konfigurasi terbaik GRU memiliki val MAE lebih rendah (203,6 vs 207,5) tetapi test dan Natal MAE lebih buruk dari acuan, indikasi overfitting. Pada uji generalisasi di Navigli, ANN terbaik menjadi model paling akurat dengan test MAE 191,1 ± 1,9.
 
 ---
 

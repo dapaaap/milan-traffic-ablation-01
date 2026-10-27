@@ -46,7 +46,7 @@ Hasil evaluasi pada @tab:tabel_C_terbaik_vs_acuan dan @fig:ieee_col_C_terbaik_vs
 
 == Bagian D — Uji Generalisasi
 
-Pengujian generalisasi spasial dilakukan dengan mengevaluasi langsung konfigurasi acuan dan konfigurasi terbaik pada lokasi kelompok, yaitu Navigli (Darsena), kotak 4555 dengan kode lokasi 1 (@tab:tabel_D_generalisasi). Wilayah Navigli memiliki karakteristik tata ruang yang sangat kontras dibandingkan kawasan pusat perkantoran Duomo (@fig:D_pola_lokasi).
+Pengujian generalisasi spasial dilakukan dengan mengevaluasi langsung konfigurasi acuan dan konfigurasi terbaik pada lokasi kelompok, yaitu Navigli (Darsena), kotak 4555 dengan kode lokasi 1 (@tab:tabel_D_generalisasi). Perbandingan test MAE kedua konfigurasi dirangkum pada @fig:ieee_col_D_generalisasi, sedangkan karakteristik pola aktivitasnya ditunjukkan pada @fig:D_pola_lokasi. Wilayah Navigli memiliki karakteristik tata ruang yang sangat kontras dibandingkan kawasan pusat perkantoran Duomo.
 
 #figure(
   caption: [Evaluasi generalisasi di Navigli, kotak 4555 ($H=1$ jam, rata-rata $plus.minus$ SD, 3 seed)],
@@ -141,10 +141,10 @@ Studi ablasi terkontrol ini membuktikan bahwa arsitektur rekuren (RNN, LSTM, dan
 #table(
   columns: (auto, 1fr),
   stroke: none,
-  [Adif Dafa Raihan], [Penyusunan kode eksperimen dasar, penulisan Pendahuluan, Data dan Metode, penyiapan konfigurasi acuan, serta perancangan protokol evaluasi.],
-  [Cindy Auliya], [Eksekusi eksperimen ablasi satu faktor (A1--A5) dan ablasi pilihan (B2, B6), visualisasi grafik IEEE, serta penulisan analisis Bagian 0, Bagian A, dan Bagian B.],
-  [Bima Cahya Ramadhan], [Eksekusi konfigurasi gabungan terbaik (Bagian C), pengujian generalisasi lokasi Navigli (Bagian D), penulisan Pembahasan, dan penyusunan Kesimpulan akhir.],
+  [Adif Dafa Raihan], [Kerangka proyek dan README, eksperimen Bagian 0 dan A1, pelatihan Bagian C/D, tabel pemilihan faktor, Abstrak, Pendahuluan, Metode, analisis A5/B2/B6, verifikasi angka, dan integrasi laporan.],
+  [Cindy Auliya], [Hipotesis dan evaluasi Bagian B, eksperimen A3, A4, B2, dan B6, serta analisis hasil Bagian 0 dan A1--A4.],
+  [Bima Cahya Ramadhan], [Eksperimen A2 dan A5, evaluasi Bagian C/D, grafik dan tabel IEEE, serta penulisan Bagian C, Bagian D, Pembahasan, dan Kesimpulan.],
 )
 
 #heading(numbering: none)[Pernyataan Penggunaan AI]
-Kami menggunakan bantuan asisten AI, antara lain OpenCode, untuk membantu penulisan kode eksperimen, analisis awal, dan penyuntingan bahasa laporan. Seluruh rancangan eksperimen, eksekusi pelatihan, dan angka yang dilaporkan berasal dari run kelompok sendiri yang tersimpan pada `hasil/ablasi.csv`; setiap keluaran AI kami periksa ulang terhadap data tersebut. AI tidak dipakai untuk menghasilkan atau mengubah angka hasil.
+Alat AI yang kami gunakan adalah Antigravity CLI, Copilot CLI, OpenCode CLI, Gemini (model LLM), Copilot (model LLM), dan DeepSeek (model). Alat-alat tersebut digunakan untuk membantu penulisan kode eksperimen, analisis awal, dan penyuntingan bahasa laporan. Seluruh rancangan eksperimen, eksekusi pelatihan, dan angka yang dilaporkan berasal dari run kelompok sendiri yang tersimpan pada `hasil/ablasi.csv`; setiap keluaran AI kami periksa ulang terhadap data tersebut. AI tidak dipakai untuk menghasilkan atau mengubah angka hasil.
