@@ -1,5 +1,3 @@
-#let petunjuk(isi) = text(fill: gray.darken(20%))[[#isi]]
-
 = Hasil
 
 == Bagian 0 — Baseline Naif dan Model Acuan
@@ -65,10 +63,10 @@ Pada bagian ini, dilakukan studi ablasi terkontrol menggunakan protokol _one-fac
 
 === A1. Pengaruh Panjang Jendela Observasi ($W$)
 
-Eksperimen A1 menguji pengaruh panjang konteks historis masukan dengan memvariasikan $W in {6, 12, 24, 48, 168}$ jam (mencakup rentang dari seperempat hari hingga satu minggu penuh). Hasil pengukuran _validation_ MAE disajikan pada @tab:tabel_A1_W, dan tren perbandingannya diilustrasikan pada @fig:ieee_col_A1_W.
+Eksperimen A1 menguji pengaruh panjang konteks historis masukan dengan memvariasikan $W in {6, 12, 24, 48, 168}$ jam (mencakup rentang dari seperempat hari hingga satu minggu penuh). Hasil pengukuran *test* MAE disajikan pada @tab:tabel_A1_W; sel tebal menandai konfigurasi yang terpilih berdasarkan val MAE. Tren perbandingannya diilustrasikan pada @fig:ieee_col_A1_W.
 
 #figure(
-  caption: [Pengaruh panjang jendela $W$ (jam) terhadap val MAE (rata-rata $plus.minus$ SD, 3 seed)],
+  caption: [Pengaruh panjang jendela $W$ (jam) terhadap test MAE (rata-rata $plus.minus$ SD, 3 seed). Sel tebal = konfigurasi terpilih berdasarkan val MAE.],
   table(
     columns: (1.5fr, 1.1fr, 1.1fr, 1.1fr, 1.1fr),
     align: (center, center, center, center, center),
@@ -76,24 +74,24 @@ Eksperimen A1 menguji pengaruh panjang konteks historis masukan dengan memvarias
     table.hline(),
     table.header([*$W$ (jam)*], [*ANN*], [*RNN*], [*LSTM*], [*GRU*]),
     table.hline(stroke: 0.5pt),
-    [6], [*211,5 $plus.minus$ 6,2*], [215,5 $plus.minus$ 4,1], [*227,1 $plus.minus$ 4,3*], [212,6 $plus.minus$ 11,5],
-    [12], [238,5 $plus.minus$ 4,5], [206,7 $plus.minus$ 6,2], [235,6 $plus.minus$ 2,0], [208,9 $plus.minus$ 10,4],
-    [24], [248,9 $plus.minus$ 8,9], [206,1 $plus.minus$ 7,4], [230,5 $plus.minus$ 12,2], [207,5 $plus.minus$ 3,8],
-    [48], [262,6 $plus.minus$ 3,8], [*200,1 $plus.minus$ 5,3*], [249,1 $plus.minus$ 21,8], [*206,7 $plus.minus$ 5,0*],
-    [168], [298,2 $plus.minus$ 18,2], [204,8 $plus.minus$ 10,2], [241,4 $plus.minus$ 8,1], [206,7 $plus.minus$ 5,1],
+    [6], [*269,4 $plus.minus$ 16,8*], [228,6 $plus.minus$ 5,4], [*276,4 $plus.minus$ 14,7*], [249,8 $plus.minus$ 1,4],
+    [12], [308,8 $plus.minus$ 11,6], [233,2 $plus.minus$ 11,2], [302,7 $plus.minus$ 17,4], [246,1 $plus.minus$ 13,5],
+    [24], [309,9 $plus.minus$ 5,9], [229,6 $plus.minus$ 5,1], [273,6 $plus.minus$ 25,4], [237,2 $plus.minus$ 9,3],
+    [48], [333,1 $plus.minus$ 20,2], [*224,5 $plus.minus$ 11,7*], [304,4 $plus.minus$ 27,1], [*237,1 $plus.minus$ 10,6*],
+    [168], [402,0 $plus.minus$ 12,5], [233,5 $plus.minus$ 4,8], [292,8 $plus.minus$ 20,0], [237,2 $plus.minus$ 10,6],
     table.hline(),
   ),
 ) <tab:tabel_A1_W>
 
 #figure(
   image("../gambar/ieee_col_A1_W.png", width: 90%),
-  caption: [Pengaruh panjang jendela $W$ terhadap performa model di Duomo.],
+  caption: [Test MAE terhadap panjang jendela $W$ untuk empat model di Duomo (rata-rata $plus.minus$ SD, 3 seed).],
 ) <fig:ieee_col_A1_W>
 
-Dari hasil eksperimen terungkap dua pola perilaku yang sangat kontras:
-1. *Degradasi Monotonik pada Feedforward ANN:* ANN memperlihatkan sensitivitas negatif yang tajam terhadap bertambahnya panjang jendela. Val MAE terendah ANN diraih pada $W = 6$ jam ($211,5 plus.minus 6,2$; test MAE 269,4), lalu membengkak seiring kenaikan $W$ hingga puncaknya pada $W = 168$ jam ($298,2 plus.minus 18,2$; test MAE 402,0). Karena ANN meratakan matriks jendela observasi, penambahan panjang jendela melipatgandakan jumlah parameter secara drastis (dari 2.465 parameter pada $W=6$ melonjak ke 38.753 parameter pada $W=168$ dengan input layer berdimensi $168 times 7 = 1.176$). Akibatnya, pada sampel data latih yang terbatas (672 sampel), ANN terjerumus ke dalam fenomena _curse of dimensionality_ dan _overfitting_ yang parah.
-2. *Ketahanan Jangka Panjang pada Model Rekuren:* Sebaliknya, model rekuren memiliki parameter yang konstan terhadap dimensi waktu ($O(1)$ terhadap $W$, yakni RNN tetap 5.305 dan GRU 5.397 parameter). Simple RNN dan GRU mencapai titik optimum pada jendela multi-hari $W = 48$ jam (2 hari penuh), dengan val MAE masing-masing sebesar *$200,1 plus.minus 5,3$* (test MAE 224,5) dan *$206,7 plus.minus 5,0$* (test MAE 237,1). Pada jendela satu minggu penuh ($W = 168$), performa RNN ($204,8 plus.minus 10,2$) dan GRU ($206,7 plus.minus 5,1$) tetap sangat stabil dan tidak mengalami lonjakan error seperti ANN. Hal ini membuktikan keunggulan intrinsik mekanisme pemrosesan sekuensial rekuren dalam memfilter sinyal deret waktu panjang tanpa membebani kompleksitas bobot.
-3. *Perilaku LSTM:* LSTM mencapai val MAE optimal pada jendela pendek $W = 6$ jam ($227,1 plus.minus 4,3$). Pada jendela yang lebih panjang ($W=48$), variansi hasil LSTM meningkat cukup lebar ($plus.minus 21,8$) akibat kesulitan algoritma optimasi dalam menyeimbangkan gradien tiga pasang gerbang pada sekuens panjang tanpa koneksi residual.
+Dari hasil eksperimen terungkap tiga pola perilaku:
+1. *Degradasi Monotonik pada Feedforward ANN:* Test MAE terendah ANN diraih pada $W = 6$ jam (269,4 $plus.minus$ 16,8) dan membengkak hingga 402,0 $plus.minus$ 12,5 pada $W = 168$ jam. Val MAE juga memilih $W=6$ (211,5 $plus.minus$ 6,2). Karena ANN meratakan matriks jendela observasi, penambahan panjang jendela melipatgandakan jumlah parameter secara drastis, dari 2.465 parameter pada $W=6$ menjadi 38.753 parameter pada $W=168$ (input layer berdimensi $168 times 7 = 1.176$). Pada 672 sampel latih, kondisi ini memicu _curse of dimensionality_ dan overfitting.
+2. *Ketahanan Jangka Panjang pada Model Rekuren:* Model rekuren memiliki jumlah parameter yang konstan terhadap $W$ (RNN 5.305 dan GRU 5.397). Simple RNN dan GRU mencapai val MAE terbaik pada $W = 48$ jam, masing-masing 200,1 $plus.minus$ 5,3 dan 206,7 $plus.minus$ 5,0, dengan test MAE 224,5 $plus.minus$ 11,7 dan 237,1 $plus.minus$ 10,6. Pada $W = 168$, test MAE RNN (233,5 $plus.minus$ 4,8) dan GRU (237,2 $plus.minus$ 10,6) tetap stabil. Ini menunjukkan keunggulan pemrosesan sekuensial dalam memfilter sinyal deret panjang tanpa menambah kompleksitas bobot.
+3. *Perilaku LSTM:* LSTM mencapai val MAE optimal pada $W = 6$ jam (227,1 $plus.minus$ 4,3), tetapi test MAE-nya 276,4 $plus.minus$ 14,7. Pada test, nilai terendah justru diperoleh $W=24$ (273,6 $plus.minus$ 25,4), hanya berbeda 2,8 dari $W=6$. Pada $W=48$, variansi LSTM melebar hingga $plus.minus$ 27,1 akibat kesulitan optimasi tiga pasang gerbang pada sekuens panjang. Perbedaan kecil ini menunjukkan bahwa pemilihan berbasis val tidak selalu transfer sempurna ke test.
 
 === A2. Pengaruh Ukuran Lapisan Tersembunyi (_Hidden Units_)
 
@@ -118,12 +116,12 @@ Eksperimen A2 mengevaluasi kapasitas representasi dengan memvariasikan dimensi h
 
 #figure(
   image("../gambar/ieee_col_A2_hidden.png", width: 90%),
-  caption: [Pengaruh variasi ukuran hidden terhadap val MAE.],
+  caption: [Test MAE terhadap ukuran hidden di Duomo (rata-rata $plus.minus$ SD, 3 seed).],
 ) <fig:ieee_col_A2_hidden>
 
 #figure(
   image("../gambar/ieee_col_A2_param.png", width: 90%),
-  caption: [Pertumbuhan parameter model terhadap ukuran hidden.],
+  caption: [Jumlah parameter model terhadap ukuran hidden untuk empat arsitektur.],
 ) <fig:ieee_col_A2_param>
 
 Dampak kapasitas terhadap performa dan kompleksitas komputasi model dapat dianalisis sebagai berikut:
@@ -153,7 +151,7 @@ Eksperimen A3 menguji kedalaman hierarki representasi dengan memvariasikan jumla
 
 #figure(
   image("../gambar/ieee_col_A3_layers.png", width: 90%),
-  caption: [Pengaruh variasi jumlah lapisan terhadap performa model.],
+  caption: [Test MAE terhadap jumlah lapisan di Duomo (rata-rata $plus.minus$ SD, 3 seed).],
 ) <fig:ieee_col_A3_layers>
 
 Temuan krusial dari variasi kedalaman meliputi:
@@ -183,16 +181,74 @@ Eksperimen A4 menguji stabilitas dan kecepatan konvergensi terhadap learning rat
 
 #figure(
   image("../gambar/ieee_col_A4_lr.png", width: 90%),
-  caption: [Pengaruh variasi learning rate terhadap performa model.],
+  caption: [Test MAE terhadap learning rate di Duomo (rata-rata $plus.minus$ SD, 3 seed).],
 ) <fig:ieee_col_A4_lr>
 
 Hasil komparasi laju pembelajaran menunjukkan dinamika optimasi sebagai berikut:
 1. *Kegagalan Konvergensi pada Laju Terlalu Kecil ($lr = 10^(-4)$):* Pada nilai $10^(-4)$, seluruh model (ANN, RNN, LSTM, GRU) menyentuh batas maksimum 300 epoch tanpa sekalipun memicu _early stopping_ (rata-rata epoch tepat 300,0). Langkah pembaruan bobot yang terlampau lambat mengakibatkan model mengalami _severe underfitting_ dan gagal mencapai lembah fungsi rugi dalam anggaran komputasi yang diberikan, sehingga val MAE melonjak sangat tinggi (LSTM $399,4 plus.minus 25,0$; GRU $398,4 plus.minus 8,6$; ANN $295,3$; RNN $285,0$).
-2. *Keseimbangan Ideal pada Nilai Acuan ($lr = 10^(-3)$):* Nilai acuan $10^(-3)$ merupakan konfigurasi optimal bagi ANN ($248,9 plus.minus 8,9$), RNN ($206,1 plus.minus 7,4$), dan GRU ($207,5 plus.minus 3,8$). Pada nilai ini, mekanisme adaptif Adam berhasil memandu model menuju konvergensi stabil sebelum dihentikan oleh _early stopping_ secara efisien pada epoch 106--194.
-3. *Kecepatan Konvergensi dan Keunggulan pada Model Bergerbang ($lr = 10^(-2)$):* Pada laju besar $10^(-2)$, seluruh arsitektur berkonvergensi secara sangat kilat, di mana _early stopping_ menghentikan pelatihan hanya dalam 61--68 epoch. Menariknya, $lr = 10^(-2)$ menjadi konfigurasi terbaik bagi LSTM dengan penurunan val MAE signifikan ke level *$215,9 plus.minus 14,2$* (test MAE 225,8) serta mempertahankan performa prima pada GRU ($208,2 plus.minus 5,6$; test MAE 215,7). Ukuran langkah gradien yang lebih besar membantu mekanisme gerbang nonlinier sigmoid dan tanh keluar dengan cepat dari plateau jenuh pada awal inisialisasi bobot. Namun untuk Simple RNN tanpa gerbang, laju besar ini memicu sedikit instabilitas dan osilasi di sekitar kurva optimum sehingga val MAE sedikit terdegradasi ke $226,7 plus.minus 6,7$.
+2. *Keseimbangan Ideal pada Nilai Acuan ($lr = 10^(-3)$):* Nilai acuan $10^(-3)$ merupakan konfigurasi optimal bagi ANN ($248,9 plus.minus 8,9$), RNN ($206,1 plus.minus 7,4$), dan GRU ($207,5 plus.minus 3,8$). Pada nilai ini, mekanisme adaptif Adam berhasil memandu model menuju konvergensi stabil sebelum dihentikan oleh _early stopping_ secara efisien pada rata-rata epoch 106--194.
+3. *Kecepatan Konvergensi dan Keunggulan pada Model Bergerbang ($lr = 10^(-2)$):* Pada laju besar $10^(-2)$, seluruh arsitektur berkonvergensi secara sangat kilat, di mana _early stopping_ menghentikan pelatihan hanya dalam rata-rata 62--68 epoch. Menariknya, $lr = 10^(-2)$ menjadi konfigurasi terbaik bagi LSTM dengan penurunan val MAE signifikan ke level *$215,9 plus.minus 14,2$* (test MAE 225,8) serta mempertahankan performa prima pada GRU ($208,2 plus.minus 5,6$; test MAE 215,7). Ukuran langkah gradien yang lebih besar membantu mekanisme gerbang nonlinier sigmoid dan tanh keluar dengan cepat dari plateau jenuh pada awal inisialisasi bobot. Namun untuk Simple RNN tanpa gerbang, laju besar ini memicu sedikit instabilitas dan osilasi di sekitar kurva optimum sehingga val MAE sedikit terdegradasi ke $226,7 plus.minus 6,7$.
 
 === A5. Pengaruh Kelompok Fitur Masukan
-#petunjuk[Laporkan faktor A5: net, net+call+sms, net+waktu, semua fitur. Tuliskan perbandingan val MAE dan interpretasi dampaknya.]
+
+Eksperimen A5 memvariasikan komposisi fitur masukan: net saja, net+call+sms, net+waktu, dan semua fitur. Hasil val MAE dirangkum pada @tab:tabel_A5_fitur, sedangkan test MAE divisualisasikan pada @fig:ieee_col_A5_fitur.
+
+#figure(
+  caption: [Pengaruh kelompok fitur terhadap val MAE (rata-rata $plus.minus$ SD, 3 seed). Sel tebal = nilai terbaik per model.],
+  table(
+    columns: (1.7fr, 1.1fr, 1.1fr, 1.1fr, 1.1fr),
+    align: (left, center, center, center, center),
+    stroke: none,
+    table.hline(),
+    table.header([*Kelompok Fitur*], [*ANN*], [*RNN*], [*LSTM*], [*GRU*]),
+    table.hline(stroke: 0.5pt),
+    [net], [260,5 $plus.minus$ 7,0], [245,2 $plus.minus$ 5,8], [266,2 $plus.minus$ 5,7], [264,6 $plus.minus$ 7,0],
+    [net+call+sms], [259,9 $plus.minus$ 5,2], [224,1 $plus.minus$ 2,3], [243,7 $plus.minus$ 7,1], [231,8 $plus.minus$ 12,6],
+    [net+waktu], [*246,0 $plus.minus$ 9,8*], [223,0 $plus.minus$ 9,5], [231,1 $plus.minus$ 4,3], [213,2 $plus.minus$ 18,2],
+    [semua], [248,9 $plus.minus$ 8,9], [*206,1 $plus.minus$ 7,4*], [*230,5 $plus.minus$ 12,2*], [*207,5 $plus.minus$ 3,8*],
+    table.hline(),
+  ),
+) <tab:tabel_A5_fitur>
+
+#figure(
+  image("../gambar/ieee_col_A5_fitur.png", width: 90%),
+  caption: [Test MAE untuk empat kelompok fitur di Duomo (rata-rata $plus.minus$ SD, 3 seed).],
+) <fig:ieee_col_A5_fitur>
+
+Empat temuan utama dari variasi fitur:
+1. *Target univariat tidak memadai.* Kelompok net saja memberi val MAE tertinggi untuk RNN (245,2), LSTM (266,2), dan GRU (264,6). Pada test, net saja menghasilkan MAE RNN 254,1, LSTM 284,1, dan GRU 270,5, lebih tinggi daripada kombinasi yang menyertakan kanal lain.
+2. *Kanal call dan sms konsisten membantu RNN dan LSTM.* Penambahan call+sms menurunkan val MAE RNN dari 245,2 menjadi 224,1 dan LSTM dari 266,2 menjadi 243,7. Pada test, penurunan yang setara terlihat dari 254,1 menjadi 227,6 (RNN) dan 284,1 menjadi 262,7 (LSTM).
+3. *Fitur waktu memberi perbaikan val terbesar pada ANN dan GRU.* Kelompok net+waktu menurunkan val MAE ANN dari 260,5 menjadi 246,0 dan GRU dari 264,6 menjadi 213,2. Pada test, GRU membaik dari 270,5 menjadi 239,7, tetapi ANN justru memburuk dari 271,8 menjadi 296,4. Untuk ANN, nilai test terbaik diperoleh dengan net saja (271,8), sedangkan val terbaiknya dengan net+waktu, indikasi overfit pada fitur tambahan.
+4. *Kombinasi semua fitur paling konsisten untuk model rekuren.* Kelompok semua fitur memberi val MAE terbaik untuk RNN (206,1), LSTM (230,5), dan GRU (207,5). Pada test, GRU tetap terbaik dengan semua fitur (237,2), sedangkan RNN dan LSTM sedikit lebih baik dengan net+call+sms (227,6 dan 262,7).
+
+Secara keseluruhan tidak ada satu kelompok fitur yang unggul mutlak. Fitur waktu dan kanal call/sms sama-sama berguna, dan kombinasi semua fitur paling konsisten untuk model rekuren; ANN lebih sensitif terhadap penambahan fitur.
 
 == Bagian B — Ablasi Pilihan
-#petunjuk[Jelaskan dua faktor tambahan pilihan kelompok (misalnya dropout dan horizon), hipotesis sebelum eksperimen, hasil pengukuran, dan apakah hasil mendukung hipotesis.]
+
+Bagian ini menguji dua faktor tambahan yang dipilih sebelum eksperimen dijalankan, yaitu dropout (B2) dan horizon peramalan (B6). Keduanya diuji pada empat model dengan tiga random seed, sementara faktor lain dipertahankan pada konfigurasi acuan.
+
+=== B2. Dropout
+
+*Hipotesis.* Dropout moderat ($p = 0,2$) meningkatkan generalisasi dibandingkan tanpa dropout ($p = 0$), sedangkan dropout agresif ($p = 0,5$) menyebabkan underfitting dan menaikkan error.
+
+#figure(
+  image("../gambar/ieee_col_B2_dropout.png", width: 90%),
+  caption: [Test MAE terhadap tingkat dropout pada empat model di Duomo (rata-rata $plus.minus$ SD, 3 seed).],
+) <fig:ieee_col_B2_dropout>
+
+*Hasil.* Dropout 0,2 menurunkan test MAE GRU dari 237,2 menjadi 225,0 (Natal 468,2 menjadi 429,7) dan LSTM dari 273,6 menjadi 264,6. Val MAE GRU juga membaik dari 207,5 menjadi 203,9. Sebaliknya, ANN memburuk dari 309,9 menjadi 330,3 dan RNN dari 229,6 menjadi 260,3. Dropout 0,5 menaikkan error seluruh model, dengan test MAE ANN 411,6, RNN 260,2, LSTM 289,1, dan GRU 273,6. Hasil lengkap terlihat pada @fig:ieee_col_B2_dropout.
+
+*Status hipotesis.* Sebagian didukung. Manfaat dropout moderat hanya muncul pada model bergerbang, terutama GRU; klaim bahwa dropout selalu meningkatkan generalisasi tidak terbukti. Sebaliknya, underfitting pada $p = 0,5$ terbukti pada semua model.
+
+=== B6. Horizon Peramalan
+
+*Hipotesis.* MAE meningkat monoton seiring bertambahnya horizon ($H=1 < H=6 < H=24$). Pada $H=1$, model neural network mengungguli baseline naif; pada $H=24$, keunggulannya mengecil, dan model rekuren diprediksi lebih baik daripada ANN.
+
+#figure(
+  image("../gambar/ieee_col_B6_horizon.png", width: 90%),
+  caption: [Test MAE terhadap horizon peramalan pada empat model di Duomo (rata-rata $plus.minus$ SD, 3 seed).],
+) <fig:ieee_col_B6_horizon>
+
+*Hasil.* Test MAE meningkat monoton pada semua model. Pada $H=1$, nilai berkisar 229,6--309,9 dan seluruh model mengungguli baseline naif terbaik (467,6). Pada $H=6$, ANN 395,7, RNN 427,6, LSTM 408,3, dan GRU 433,4. Pada $H=24$, ANN 526,8, RNN 486,4, LSTM 496,1, dan GRU 503,3; seluruh model justru kalah dari baseline naif minggu lalu (466,1). Pada horizon ini model rekuren mengungguli ANN, meskipun pada $H=6$ ANN masih yang terbaik. MAE Natal pada $H=24$ memburuk ke rentang 1.101,6--1.199,4. Tren lengkapnya ditunjukkan pada @fig:ieee_col_B6_horizon.
+
+*Status hipotesis.* Didukung sepenuhnya untuk monotonisitas dan memburuknya keunggulan pada horizon panjang. Prediksi bahwa model rekuren mengungguli ANN juga terkonfirmasi pada $H=24$, tetapi tidak pada $H=6$.
