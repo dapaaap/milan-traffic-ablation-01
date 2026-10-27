@@ -15,7 +15,8 @@
     (name: "Cindy Auliya", department: [NIM 124400045], organization: [Teknik Telekomunikasi, ITERA], email: "cindy.124400045@student.itera.ac.id"),
     (name: "Bima Cahya Ramadhan", department: [NIM 124400001], organization: [Teknik Telekomunikasi, ITERA], email: "bima.124400001@student.itera.ac.id"),
   ),
-  index-terms: ("prediksi trafik seluler", "RNN", "LSTM", "GRU", "studi ablasi"),
+  index-terms: ("GRU", "LSTM", "prediksi trafik seluler", "RNN", "studi ablasi"),
+  paper-size: "a4",
   bibliography: bibliography("references.bib", title: [Referensi]),
   figure-supplement: [Fig.],
 )

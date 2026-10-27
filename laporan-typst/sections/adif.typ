@@ -10,29 +10,21 @@ Kontribusi laporan ini ada tiga. Pertama, ablasi terkontrol lima faktor utama (p
 
 == Dataset
 
-Data berasal dari Telecom Italia Big Data Challenge @barlacchi2015milan yang mencakup aktivitas jaringan di Kota Milan, Italia. Kami memakai versi agregasi per jam @zhang2021fedda untuk periode 4 November--29 Desember 2013, sehingga setiap lokasi memiliki 1.344 observasi atau 56 hari. Setiap catatan memuat tiga kanal trafik, yaitu internet (net), panggilan (call), dan SMS (sms). Fitur masukan berjumlah tujuh: net, call, sms, serta empat fitur waktu berupa sinus dan kosinus jam (jam_sin, jam_cos) dan hari (hari_sin, hari_cos). Fitur waktu merepresentasikan periodisitas sirkadian dan mingguan secara kontinu. Target peramalan adalah net satu jam ke depan.
-
-Lokasi utama penelitian adalah kotak Duomo 5060 yang mewakili pusat aktivitas kota. Sebagai uji generalisasi, kami memakai lokasi kelompok, yaitu Navigli (Darsena) pada kotak 4555 dengan kode lokasi 1. Sebaran kedua lokasi ditunjukkan pada @fig:peta.
-
-#figure(
-  image("../gambar/peta_lokasi_tugas.png", width: 85%),
-  caption: [Rata-rata aktivitas internet per kotak di Milan. Lingkaran kuning menunjukkan lokasi tugas (kode 0--9); lingkaran toska menunjukkan Duomo.],
-  placement: top,
-) <fig:peta>
+Data berasal dari Telecom Italia Big Data Challenge @barlacchi2015milan yang mencakup aktivitas jaringan di Kota Milan, Italia. Kami memakai versi agregasi per jam @zhang2021fedda untuk periode 4 November--29 Desember 2013, sehingga setiap lokasi memiliki 1.344 observasi atau 56 hari. Setiap catatan memuat tiga kanal trafik, yaitu internet (net), panggilan (call), dan SMS (sms). Fitur masukan berjumlah tujuh: net, call, sms, serta empat fitur waktu berupa sinus dan kosinus jam (jam_sin, jam_cos) dan hari (hari_sin, hari_cos). Fitur waktu merepresentasikan periodisitas sirkadian dan mingguan secara kontinu. Target peramalan adalah net satu jam ke depan. Lokasi utama penelitian adalah kotak Duomo 5060, sedangkan lokasi kelompok untuk uji generalisasi adalah Navigli (Darsena), kotak 4555 dengan kode lokasi 1.
 
 == Pembagian Data dan Praproses
 
-Pembagian data dilakukan secara kronologis: train 11 November--8 Desember 2013 (672 jam), validasi 9--15 Desember, test 16--22 Desember, dan periode Natal 23--29 Desember. Minggu pertama, 4--10 November, tidak dipakai sebagai sampel latih dan hanya menjadi konteks jendela bagi sampel awal. Pembagian ini memisahkan masa depan dari masa lalu sehingga tidak ada informasi test yang bocor ke pelatihan.
+Pembagian data dilakukan secara kronologis: train 11 November--8 Desember 2013 (672 jam), validasi 9--15 Desember, test 16--22 Desember, dan periode Natal 23--29 Desember. Minggu pertama, 4--10 November, hanya menjadi konteks jendela bagi sampel awal. Pembagian ini memisahkan masa depan dari masa lalu sehingga tidak ada informasi test yang bocor ke pelatihan.
 
-Standardisasi z-score dihitung dari rata-rata dan simpangan baku data sebelum 9 Desember, yaitu data latih beserta minggu konteks. Statistik tersebut kemudian diterapkan pada validasi, test, dan Natal. Dengan cara ini, model tidak pernah melihat statistik periode evaluasi. Jendela masukan dibentuk dengan panjang $W = 24$ jam dan horizon $H = 1$ jam, sehingga terdapat 672 jendela latih. Sebuah jendela dimasukkan ke split tertentu berdasarkan waktu targetnya, bukan waktu awal jendela. Prediksi dikembalikan ke skala asli sebelum metrik dihitung.
+Standardisasi z-score dihitung dari rata-rata dan simpangan baku data sebelum 9 Desember, yaitu data latih beserta minggu konteks. Statistik tersebut kemudian diterapkan pada validasi, test, dan Natal. Jendela masukan dibentuk dengan panjang $W = 24$ jam dan horizon $H = 1$ jam, sehingga terdapat 672 jendela latih. Sebuah jendela dimasukkan ke split berdasarkan waktu targetnya, bukan waktu awal jendela. Prediksi dikembalikan ke skala asli sebelum metrik dihitung.
 
-Data deret waktu tidak diacak pada tahap pembagian karena pengacakan akan mencampur masa lalu dan masa depan serta merusak urutan yang menjadi objek peramalan. Pengacakan hanya dilakukan pada urutan mini-batch selama pelatihan; setiap jendela tetap mempertahankan urutan internalnya.
+Deret waktu tidak diacak pada tahap pembagian karena pengacakan akan mencampur masa lalu dan masa depan serta merusak urutan yang menjadi objek peramalan. Pengacakan hanya dilakukan pada urutan mini-batch selama pelatihan; setiap jendela tetap mempertahankan urutan internalnya.
 
 == Model dan Konfigurasi Acuan
 
-ANN meratakan jendela $W times 7$ menjadi vektor dan memetakannya melalui dua lapisan tersembunyi berukuran 32 dengan aktivasi ReLU. Model ini tidak memodelkan urutan secara eksplisit. RNN sederhana memproses jendela langkah demi langkah dengan hidden state berukuran 68 dan memakai state terakhir untuk prediksi. LSTM memakai hidden state 33 serta tiga gerbang dan cell state @hochreiter1997lstm, sedangkan GRU memakai hidden state 38 dengan dua gerbang @cho2014gru. Pada ketiga model rekuren, keluaran diambil dari hidden state langkah terakhir, lalu dilewatkan satu lapisan linear.
+ANN meratakan jendela $W times 7$ menjadi vektor dan memetakannya melalui dua lapisan tersembunyi berukuran 32 dengan aktivasi ReLU. RNN sederhana memakai hidden state 68, LSTM memakai hidden state 33 dengan tiga gerbang dan cell state @hochreiter1997lstm, sedangkan GRU memakai hidden state 38 dengan dua gerbang @cho2014gru. Pada ketiga model rekuren, keluaran diambil dari hidden state langkah terakhir, lalu dilewatkan satu lapisan linear.
 
-Semua model dilatih dengan fungsi loss MSE dan optimizer Adam (learning rate $10^(-3)$), batch 64, serta early stopping pada val MSE dengan patience 30 dan maksimum 300 epoch. Bobot terbaik dipilih dari epoch dengan val MSE terendah. Pelatihan diimplementasikan dengan PyTorch @paszke2019pytorch. Konfigurasi acuan dirangkum pada @tab:acuan.
+Semua model dilatih dengan loss MSE dan optimizer Adam (learning rate $10^(-3)$), batch 64, serta early stopping pada val MSE dengan patience 30 dan maksimum 300 epoch. Bobot terbaik dipilih dari epoch dengan val MSE terendah. Pelatihan diimplementasikan dengan PyTorch @paszke2019pytorch. Konfigurasi acuan dirangkum pada @tab:acuan.
 
 #figure(
   caption: [Konfigurasi acuan dan jumlah parameter],
@@ -59,8 +51,6 @@ Semua model dilatih dengan fungsi loss MSE dan optimizer Adam (learning rate $10
 
 == Protokol Ablasi dan Evaluasi
 
-Setiap eksperimen mengubah satu faktor dari konfigurasi acuan, sedangkan faktor lain dipertahankan. Faktor A1 menguji panjang jendela $W in {6, 12, 24, 48, 168}$ jam; A2 ukuran hidden ${16, 32, 64, 128}$; A3 jumlah lapisan ${1, 2, 3}$; A4 learning rate ${10^(-4), 10^(-3), 10^(-2)}$; dan A5 kelompok fitur {net, net+call+sms, net+waktu, semua}. Dua faktor tambahan adalah B2 dropout {0; 0,2; 0,5} dan B6 horizon {1, 6, 24} jam. Setiap konfigurasi dilatih dengan tiga random seed, yaitu 0, 1, dan 2, lalu dilaporkan sebagai rata-rata $plus.minus$ simpangan baku.
+Setiap eksperimen mengubah satu faktor dari konfigurasi acuan. Faktor A1 menguji $W in {6, 12, 24, 48, 168}$ jam; A2 ukuran hidden ${16, 32, 64, 128}$; A3 jumlah lapisan ${1, 2, 3}$; A4 learning rate ${10^(-4), 10^(-3), 10^(-2)}$; dan A5 kelompok fitur {net, net+call+sms, net+waktu, semua}. Faktor tambahan adalah B2 dropout {0; 0,2; 0,5} dan B6 horizon {1, 6, 24} jam. Setiap konfigurasi dilatih dengan tiga seed (0, 1, 2) dan dilaporkan sebagai rata-rata $plus.minus$ simpangan baku.
 
-Evaluasi memakai MAE, RMSE, dan MAPE pada skala asli. MAE menjadi metrik utama karena satuannya sama dengan aktivitas trafik, sedangkan MAPE memberi gambaran error relatif. Pemilihan konfigurasi terbaik hanya memakai val MAE; data test dan Natal tidak dipakai sampai evaluasi akhir. Konfigurasi terbaik tiap model kemudian digabungkan pada Bagian C dan diuji generalisasinya pada Bagian D.
-
-Seluruh pelatihan dijalankan pada CPU dengan PyTorch. Sebanyak 270 pelatihan unik (348 catatan run karena beberapa konfigurasi acuan dipakai ulang) memerlukan total waktu 92,6 menit.
+Evaluasi memakai MAE, RMSE, dan MAPE pada skala asli; MAE menjadi metrik utama. Pemilihan konfigurasi terbaik hanya memakai val MAE, sedangkan data test dan Natal dipakai untuk evaluasi akhir. Seluruh pelatihan dijalankan pada CPU dengan PyTorch; 270 pelatihan unik (348 catatan run karena beberapa konfigurasi acuan dipakai ulang) memerlukan total 92,6 menit.
